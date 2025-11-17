@@ -7,7 +7,7 @@ rip_percentCanopyCover_CERT <- restR2::par.get.os.l0.data(dpID = 'DP0.20275.001'
                                                  startDate = "2015-01-01", 
                                                  endDate = Sys.Date(), 
                                                  ncores = 9, 
-                                                 stack = "cert",
+                                                 stack = "prod",
                                                  ingestTable = 'rip_percentCanopyCover_in'
 )
 
@@ -15,9 +15,15 @@ rip_fieldDataBank_CERT <- restR2::par.get.os.l0.data(dpID = 'DP0.20275.001',
                                                           startDate = "2015-01-01", 
                                                           endDate = Sys.Date(), 
                                                           ncores = 9, 
-                                                          stack = "cert",
+                                                          stack = "prod",
                                                           ingestTable = 'rip_fieldDataBank_in'
 )
+
+
+TOMB_01 <- rip_fieldDataBank_CERT |>
+  dplyr::select(pavementPresence, eventID, transectID)|>
+  filter(grepl("TOMB", eventID))|>
+  filter(grepl("01", transectID))
 
 rivers <- c("TOMB|BLWA|FLNT")
 locations <- c("01|10|05|06")
@@ -82,3 +88,18 @@ FLNT_2021_L0_to_update <- FLNT_fixer %>%
 readr::write_delim(FLNT_2021_L0_to_update,
                    file=paste0("C:/Users/mcclurer/OneDrive - National Ecological Observatory Network/OS Team - L0dataEditing_2025/rip_fixesOnFixesOnFixes_20250521/editedUpload/rip_percentCanopyCover_update_FLNT_2021_SI_to_logistical.txt"),
                    delim = "\t")
+
+
+library(tidyverse)
+
+logistic_regression <- rip_FDB |>
+  filter(transectID == "TOMB.AOS.riparian.point.01") |>
+  select(startDate, pavementPresence)|>
+  filter(startDate > as.Date("2017-08-30"))
+
+
+
+ggplot(data = logistic_regression, aes(startDate, pavementPresence))+
+  geom_point(size = 6) +
+  theme_classic()
+
